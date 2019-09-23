@@ -15,7 +15,7 @@ var MAX_ROOMS = 4;
 var MIN_GUESTS = 1;
 var MAX_GUESTS = 4;
 var CHECK_TIMES = ['12:00', '13:00', '14:00'];
-var OFFER_FEATURES = ['wifi', 'flat', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'];
+var OFFER_FEATURES = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'];
 var OFFER_DESCRIPTION = 'Описание предложения_';
 var OFFER_PHOTOS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.github.io/assets/images/tokyo/hotel2.jpg', 'http://o0.github.io/assets/images/tokyo/hotel3.jpg'];
 var MIN_Y_LOCATION = 130;
@@ -73,10 +73,10 @@ var createPinNotice = function (notice) {
   noticeElement.querySelector('img').alt = notice.offer.title;
   return noticeElement;
 };
-var createPinsFragment = function (notices) {
+var createPinsFragment = function (arr) {
   var fragment = document.createDocumentFragment();
-  for (var i = 0; i < notices.length; i++) {
-    fragment.appendChild(createPinNotice(notices[i]));
+  for (var i = 0; i < arr.length; i++) {
+    fragment.appendChild(createPinNotice(arr[i]));
   }
   return fragment;
 };
@@ -89,19 +89,26 @@ var getOfferTypeValue = function (offerTypeKey) {
   }
   return 'Без типа';
 };
-var changeFeaturesList = function (parentNode) {
-  for (var childNode of parentNode.childNodes) {
-    for (var feature of OFFER_FEATURES) {
-      if (childNode.outerHTML.includes(feature)) {
-        return feature;
-      }
-    }
+var changeFeaturesList = function (featuresNode, featuresNotice) {
+  featuresNode.innerHTML = '';
+  for (var i = 0; i < featuresNotice.length; ++i) {
+    var childHTML = '<li class=\n"popup__feature popup__feature--' + featuresNotice[i] + '\n"></li>';
+    featuresNode.innerHTML += childHTML;
   }
-  return 'Без типа';
+  return featuresNode;
+};
+var addPhotosList = function (photosNode, photosNotice) {
+  var copyChild = photosNode.querySelector('.popup__photo');
+  photosNode.removeChild(copyChild);
+  for (var i = 0; i < photosNotice.length; ++i) {
+    copyChild.src = photosNotice[i];
+    photosNode.appendChild(copyChild.cloneNode(true));
+  }
+  return photosNode;
 };
 var createCardNotice = function (notice) {
   var cardElement = mapCardTemplate.cloneNode(true);
-  cardElement.querySelector('h3').textContent = notice.offer.title;
+  cardElement.querySelector('.popup__title').textContent = notice.offer.title;
   cardElement.querySelector('.popup__text--address').textContent = notice.offer.address;
   cardElement.querySelector('.popup__text--price').textContent = notice.offer.price + '₽/ночь';
   cardElement.querySelector('.popup__type').textContent = getOfferTypeValue(notice.offer.type);
@@ -109,8 +116,10 @@ var createCardNotice = function (notice) {
   cardElement.querySelector('.popup__text--capacity').textContent = textCapacity;
   var textTime = 'Заезд после ' + notice.offer.checkin + ', выезд до ' + notice.offer.checkout;
   cardElement.querySelector('.popup__text--time').textContent = textTime;
-  changeFeaturesList(cardElement.querySelector('.popup__features'));
-  //cardElement.querySelector('.popup__features').innerHTML = createListFeatures();
+  changeFeaturesList(cardElement.querySelector('.popup__features'), notice.offer.features);
+  cardElement.querySelector('.popup__description').textContent = notice.offer.description;
+  addPhotosList(cardElement.querySelector('.popup__photos'), notice.offer.photos);
+  cardElement.querySelector('.popup__avatar').src = notice.author.avatar;
   return cardElement;
 };
 
