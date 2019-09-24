@@ -90,10 +90,13 @@ var getOfferTypeValue = function (offerTypeKey) {
   return 'Без типа';
 };
 var changeFeaturesList = function (featuresNode, featuresNotice) {
-  featuresNode.innerHTML = '';
+  var copyChild = featuresNode.firstElementChild;
+  while (featuresNode.querySelector('.popup__feature')) {
+    featuresNode.removeChild(featuresNode.querySelector('.popup__feature'));
+  }
   for (var i = 0; i < featuresNotice.length; ++i) {
-    var childHTML = '<li class=\n"popup__feature popup__feature--' + featuresNotice[i] + '\n"></li>';
-    featuresNode.innerHTML += childHTML;
+    copyChild.setAttribute('class', 'popup__feature popup__feature--' + featuresNotice[i]);
+    featuresNode.appendChild(copyChild.cloneNode(true));
   }
   return featuresNode;
 };
