@@ -200,12 +200,12 @@ mapMainPin.addEventListener('keydown', function (evt) {
   }
 });
 
-selectRoom.addEventListener('input', function (evt) {
+selectRoom.addEventListener('change', function (evt) {
   var messageValidity = checkRoomCapacity(evt.target.value, selectCapacity.value);
   setResultValidity(selectRoom, messageValidity);
 });
 
-selectCapacity.addEventListener('input', function (evt) {
+selectCapacity.addEventListener('change', function (evt) {
   var messageValidity = checkRoomCapacity(selectRoom.value, evt.target.value);
   setResultValidity(selectCapacity, messageValidity);
 });
