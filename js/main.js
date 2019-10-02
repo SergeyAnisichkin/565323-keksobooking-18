@@ -11,9 +11,9 @@ var OFFER_TYPES = [
   {key: 'bungalo', value: 'Бунгало'},
 ];
 var MIN_ROOMS = 1;
-var MAX_ROOMS = 4;
+var MAX_ROOMS = 3;
 var MIN_GUESTS = 1;
-var MAX_GUESTS = 4;
+var MAX_GUESTS = 3;
 var CHECK_TIMES = ['12:00', '13:00', '14:00'];
 var OFFER_FEATURES = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'];
 var OFFER_DESCRIPTION = 'Описание предложения_';
@@ -21,6 +21,7 @@ var OFFER_PHOTOS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http:
 var MIN_Y_LOCATION = 130;
 var MAX_Y_LOCATION = 630;
 var ENTER_KEYCODE = 13;
+var LENGTH_AVATAR_SRC = 22;
 
 var map = document.querySelector('.map');
 var mapPin = document.querySelector('.map__pin');
@@ -75,10 +76,10 @@ var createPinNotice = function (notice) {
   return noticeElement;
 };
 
-var createPinsFragment = function (arr) {
+var createPinsFragment = function (noticesArray) {
   var fragment = document.createDocumentFragment();
-  for (var i = 0; i < arr.length; i++) {
-    fragment.appendChild(createPinNotice(arr[i]));
+  for (var i = 0; i < noticesArray.length; i++) {
+    fragment.appendChild(createPinNotice(noticesArray[i]));
   }
   return fragment;
 };
@@ -134,6 +135,7 @@ var createCardNotice = function (notice) {
 var mapFilters = mapFiltersContainer.querySelectorAll('.map__filters > *');
 var adForm = document.querySelector('.ad-form');
 var adFormFields = document.querySelectorAll('.ad-form > *');
+var adFormAddressInput = adForm.querySelector('input#address');
 var mapMainPin = mapPins.querySelector('.map__pin--main');
 var DROP_PIN_BOTTOM = 53;
 var xLocationMainPin = parseInt(mapMainPin.style.left, 10) + Math.floor(mapMainPin.clientWidth / 2);
@@ -141,12 +143,13 @@ var yLocationMainPin = parseInt(mapMainPin.style.top, 10) + Math.floor(mapMainPi
 var selectRoom = adForm.querySelector('#room_number');
 var selectCapacity = adForm.querySelector('#capacity');
 var INVALID_BORDER_STYLE = '5px solid orange';
+var activePageStatus = false;
 
-var toggleDisabled = function (array) {
-  for (var i = 0; i < array.length; ++i) {
-    array[i].disabled = array[i].disabled ? false : true;
+var toggleDisabled = function (elements) {
+  for (var i = 0; i < elements.length; ++i) {
+    elements[i].disabled = elements[i].disabled ? false : true;
   }
-  return array;
+  return elements;
 };
 
 var toggleDisabledForms = function () {
@@ -156,14 +159,44 @@ var toggleDisabledForms = function () {
 
 var setInactivePageStatus = function () {
   toggleDisabledForms();
-  adForm.querySelector('input#address').value = xLocationMainPin + ', ' + yLocationMainPin;
+  adFormAddressInput.value = xLocationMainPin + ', ' + yLocationMainPin;
+};
+
+var getNoticeBySrc = function (src) {
+  src = src.slice(-LENGTH_AVATAR_SRC);
+  for (var i = 0; i < notices.length; ++i) {
+    if (notices[i].author.avatar === src) {
+      return notices[i];
+    }
+  }
+  return notices[0];
+};
+
+var addPinsEventListeners = function (pins) {
+  for (var i = 0; i < pins.length; ++i) {
+    pins[i].addEventListener('click', function (evt) {
+      var avatarSrc = (evt.target.tagName === 'IMG') ? evt.target.src : evt.target.children[0].src;
+      map.insertBefore(createCardNotice(getNoticeBySrc(avatarSrc)), mapFiltersContainer);
+    });
+
+    pins[i].addEventListener('keydown', function (evt) {
+      if (evt.keyCode === ENTER_KEYCODE) {
+        var avatarSrc = (evt.target === 'img') ? evt.path[0].src : evt.path[0].children[0].src;
+        map.insertBefore(createCardNotice(getNoticeBySrc(avatarSrc)), mapFiltersContainer);
+      }
+    });
+  }
 };
 
 var setActivePageStatus = function () {
   toggleDisabledForms();
   map.classList.remove('map--faded');
   adForm.classList.remove('ad-form--disabled');
-  adForm.querySelector('input#address').value = xLocationMainPin + ', ' + (yLocationMainPin + DROP_PIN_BOTTOM);
+  adFormAddressInput.value = xLocationMainPin + ', ' + (yLocationMainPin + DROP_PIN_BOTTOM);
+  mapPins.appendChild(createPinsFragment(generateNotices(NOTICES_AMOUNT)));
+  activePageStatus = true;
+  var mapPinElements = mapPins.querySelectorAll('.map__pin:not(.map__pin--main)');
+  addPinsEventListeners(mapPinElements);
 };
 
 var checkRoomCapacity = function (room, capacity) {
@@ -191,11 +224,13 @@ var setResultValidity = function (select, message) {
 };
 
 mapMainPin.addEventListener('mousedown', function () {
-  setActivePageStatus();
+  if (!activePageStatus) {
+    setActivePageStatus();
+  }
 });
 
 mapMainPin.addEventListener('keydown', function (evt) {
-  if (evt.keyCode === ENTER_KEYCODE) {
+  if (evt.keyCode === ENTER_KEYCODE && !activePageStatus) {
     setActivePageStatus();
   }
 });
@@ -212,5 +247,3 @@ selectCapacity.addEventListener('change', function (evt) {
 
 setInactivePageStatus();
 
-// mapPins.appendChild(createPinsFragment(generateNotices(NOTICES_AMOUNT)));
-// map.insertBefore(createCardNotice(notices[0]), mapFiltersContainer);
