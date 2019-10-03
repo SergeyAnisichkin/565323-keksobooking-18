@@ -21,6 +21,7 @@ var OFFER_PHOTOS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http:
 var MIN_Y_LOCATION = 130;
 var MAX_Y_LOCATION = 630;
 var ENTER_KEYCODE = 13;
+var ESC_KEYCODE = 27;
 var LENGTH_AVATAR_SRC = 22;
 
 var map = document.querySelector('.map');
@@ -144,6 +145,7 @@ var selectRoom = adForm.querySelector('#room_number');
 var selectCapacity = adForm.querySelector('#capacity');
 var INVALID_BORDER_STYLE = '5px solid orange';
 var activePageStatus = false;
+var popupClose = document.querySelector('.popup__close');
 
 var toggleDisabled = function (elements) {
   for (var i = 0; i < elements.length; ++i) {
@@ -160,32 +162,6 @@ var toggleDisabledForms = function () {
 var setInactivePageStatus = function () {
   toggleDisabledForms();
   adFormAddressInput.value = xLocationMainPin + ', ' + yLocationMainPin;
-};
-
-var getNoticeBySrc = function (src) {
-  src = src.slice(-LENGTH_AVATAR_SRC);
-  for (var i = 0; i < notices.length; ++i) {
-    if (notices[i].author.avatar === src) {
-      return notices[i];
-    }
-  }
-  return notices[0];
-};
-
-var addPinsEventListeners = function (pins) {
-  for (var i = 0; i < pins.length; ++i) {
-    pins[i].addEventListener('click', function (evt) {
-      var avatarSrc = (evt.target.tagName === 'IMG') ? evt.target.src : evt.target.children[0].src;
-      map.insertBefore(createCardNotice(getNoticeBySrc(avatarSrc)), mapFiltersContainer);
-    });
-
-    pins[i].addEventListener('keydown', function (evt) {
-      if (evt.keyCode === ENTER_KEYCODE) {
-        var avatarSrc = (evt.target === 'img') ? evt.path[0].src : evt.path[0].children[0].src;
-        map.insertBefore(createCardNotice(getNoticeBySrc(avatarSrc)), mapFiltersContainer);
-      }
-    });
-  }
 };
 
 var setActivePageStatus = function () {
@@ -244,6 +220,53 @@ selectCapacity.addEventListener('change', function (evt) {
   var messageValidity = checkRoomCapacity(selectRoom.value, evt.target.value);
   setResultValidity(selectCapacity, messageValidity);
 });
+
+var getNoticeBySrc = function (src) {
+  src = src.slice(-LENGTH_AVATAR_SRC);
+  for (var i = 0; i < notices.length; ++i) {
+    if (notices[i].author.avatar === src) {
+      return notices[i];
+    }
+  }
+  return notices[0];
+};
+
+var openCardPinPopup = function (target) {
+  var avatarSrc = (target.tagName === 'IMG') ? target.src : target.children[0].src;
+  var cardPopup = createCardNotice(getNoticeBySrc(avatarSrc));
+  map.insertBefore(cardPopup, mapFiltersContainer);
+  popupClose.addEventListener('click', function () {
+    closePopup(cardPopup);
+  });
+  popupClose.addEventListener('keydown', function (evt) {
+    if (evt.keyCode === ENTER_KEYCODE) {
+      closePopup(cardPopup);
+    }
+  });
+  document.addEventListener('keydown', onPopupEscPress);
+  var onPopupEscPress = function (evt) {
+    if (evt.keyCode === ESC_KEYCODE) {
+      closePopup();
+    }
+  };
+  var closePopup = function () {
+    map.removeChild(cardPopup);
+    document.removeEventListener('keydown', onPopupEscPress);
+  };
+};
+
+var addPinsEventListeners = function (pins) {
+  for (var i = 0; i < pins.length; ++i) {
+    pins[i].addEventListener('click', function (evt) {
+      openCardPinPopup(evt.target);
+    });
+    pins[i].addEventListener('keydown', function (evt) {
+      if (evt.keyCode === ENTER_KEYCODE) {
+        openCardPinPopup(evt.target);
+      }
+    });
+  }
+};
 
 setInactivePageStatus();
 
