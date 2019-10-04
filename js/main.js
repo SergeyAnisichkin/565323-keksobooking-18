@@ -2,7 +2,7 @@
 
 var NOTICES_AMOUNT = 8;
 var OFFER_TITLE = 'Заголовок предложения_';
-var MIN_PRICE = 1;
+var MIN_PRICE = 0;
 var MAX_PRICE = 10000;
 var OFFER_TYPES = [
   {key: 'palace', value: 'Дворец'},
@@ -36,6 +36,7 @@ var notices = [];
 var createNotice = function (index) {
   var xLocation = Math.floor(Math.random() * maxXLocation);
   var yLocation = Math.floor(MIN_Y_LOCATION + Math.random() * (MAX_Y_LOCATION - MIN_Y_LOCATION));
+  var checkTime = CHECK_TIMES[Math.floor(Math.random() * CHECK_TIMES.length)];
   var notice = {
     author: {
       avatar: 'img/avatars/user0' + (index + 1) + '.png'
@@ -51,8 +52,8 @@ var createNotice = function (index) {
       type: OFFER_TYPES[Math.floor(Math.random() * OFFER_TYPES.length)].key,
       rooms: Math.floor(MIN_ROOMS + Math.random() * (MAX_ROOMS - MIN_ROOMS)),
       guests: Math.floor(MIN_GUESTS + Math.random() * (MAX_GUESTS - MIN_GUESTS)),
-      checkin: CHECK_TIMES[Math.floor(Math.random() * CHECK_TIMES.length)],
-      checkout: CHECK_TIMES[Math.floor(Math.random() * CHECK_TIMES.length)],
+      checkin: checkTime,
+      checkout: checkTime,
       features: OFFER_FEATURES.slice(Math.floor(Math.random() * OFFER_FEATURES.length)),
       description: OFFER_DESCRIPTION + index,
       photos: OFFER_PHOTOS.slice(Math.floor(Math.random() * OFFER_PHOTOS.length))
@@ -145,7 +146,6 @@ var selectRoom = adForm.querySelector('#room_number');
 var selectCapacity = adForm.querySelector('#capacity');
 var INVALID_BORDER_STYLE = '5px solid orange';
 var activePageStatus = false;
-var popupClose = document.querySelector('.popup__close');
 
 var toggleDisabled = function (elements) {
   for (var i = 0; i < elements.length; ++i) {
@@ -190,13 +190,22 @@ var checkRoomCapacity = function (room, capacity) {
   return '';
 };
 
-var setResultValidity = function (select, message) {
-  selectRoom.style.border = '';
-  selectRoom.setCustomValidity('');
-  selectCapacity.style.border = '';
-  selectCapacity.setCustomValidity('');
-  select.style.border = message ? INVALID_BORDER_STYLE : '';
-  select.setCustomValidity(message);
+var setSuccessValidity = function (element) {
+  element.style.border = '';
+  element.setCustomValidity('');
+};
+
+var setErrorValidity = function (element, message) {
+  element.style.border = INVALID_BORDER_STYLE;
+  element.setCustomValidity(message);
+};
+
+var setResultRoomValidity = function (select, message) {
+  setSuccessValidity(selectRoom);
+  setSuccessValidity(selectCapacity);
+  if (message) {
+    setErrorValidity(select, message);
+  }
 };
 
 mapMainPin.addEventListener('mousedown', function () {
@@ -213,12 +222,12 @@ mapMainPin.addEventListener('keydown', function (evt) {
 
 selectRoom.addEventListener('change', function (evt) {
   var messageValidity = checkRoomCapacity(evt.target.value, selectCapacity.value);
-  setResultValidity(selectRoom, messageValidity);
+  setResultRoomValidity(selectRoom, messageValidity);
 });
 
 selectCapacity.addEventListener('change', function (evt) {
   var messageValidity = checkRoomCapacity(selectRoom.value, evt.target.value);
-  setResultValidity(selectCapacity, messageValidity);
+  setResultRoomValidity(selectCapacity, messageValidity);
 });
 
 var getNoticeBySrc = function (src) {
@@ -232,18 +241,16 @@ var getNoticeBySrc = function (src) {
 };
 
 var openCardPinPopup = function (target) {
+  var cardPopup = map.querySelector('.popup');
+  if (cardPopup) {
+    map.removeChild(cardPopup);
+    document.removeEventListener('keydown', onPopupEscPress);
+  }
   var avatarSrc = (target.tagName === 'IMG') ? target.src : target.children[0].src;
-  var cardPopup = createCardNotice(getNoticeBySrc(avatarSrc));
+  cardPopup = createCardNotice(getNoticeBySrc(avatarSrc));
   map.insertBefore(cardPopup, mapFiltersContainer);
-  popupClose.addEventListener('click', function () {
-    closePopup(cardPopup);
-  });
-  popupClose.addEventListener('keydown', function (evt) {
-    if (evt.keyCode === ENTER_KEYCODE) {
-      closePopup(cardPopup);
-    }
-  });
-  document.addEventListener('keydown', onPopupEscPress);
+  var popupClose = map.querySelector('.popup__close');
+
   var onPopupEscPress = function (evt) {
     if (evt.keyCode === ESC_KEYCODE) {
       closePopup();
@@ -253,6 +260,15 @@ var openCardPinPopup = function (target) {
     map.removeChild(cardPopup);
     document.removeEventListener('keydown', onPopupEscPress);
   };
+  popupClose.addEventListener('click', function () {
+    closePopup();
+  });
+  popupClose.addEventListener('keydown', function (evt) {
+    if (evt.keyCode === ENTER_KEYCODE) {
+      closePopup();
+    }
+  });
+  document.addEventListener('keydown', onPopupEscPress);
 };
 
 var addPinsEventListeners = function (pins) {
@@ -267,6 +283,57 @@ var addPinsEventListeners = function (pins) {
     });
   }
 };
+
+var selectType = adForm.querySelector('#type');
+var inputPrice = adForm.querySelector('#price');
+var timeIn = adForm.querySelector('#timein');
+var timeOut = adForm.querySelector('#timeout');
+
+var getMinPriceByType = function (typeValue) {
+  if (typeValue === 'flat') {
+    return '1000';
+  } else if (typeValue === 'house') {
+    return '5000';
+  } else if (typeValue === 'palace') {
+    return '10000';
+  }
+  return '0';
+};
+
+var checkPriceType = function (typeValue) {
+  var minPrice = getMinPriceByType(typeValue);
+  var priceValue = +inputPrice.value;
+  inputPrice.min = minPrice;
+  inputPrice.placeholder = minPrice;
+  minPrice = +minPrice;
+
+  if (priceValue < minPrice) {
+    setErrorValidity(inputPrice, 'Значение меньше минимально допустимого - ' + minPrice);
+  } else {
+    setSuccessValidity(inputPrice);
+  }
+};
+
+selectType.addEventListener('change', function (evt) {
+  checkPriceType(evt.target.value);
+});
+
+var setTimeInOut = function (timeOptions, setValue) {
+  for (var i = 0; i < timeOptions.length; ++i) {
+    timeOptions[i].selected = false;
+    if (timeOptions[i].value === setValue) {
+      timeOptions[i].selected = true;
+    }
+  }
+};
+
+timeIn.addEventListener('change', function (evt) {
+  setTimeInOut(timeOut.children, evt.target.value);
+});
+
+timeOut.addEventListener('change', function (evt) {
+  setTimeInOut(timeIn.children, evt.target.value);
+});
 
 setInactivePageStatus();
 
