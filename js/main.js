@@ -242,6 +242,13 @@ var getNoticeBySrc = function (src) {
 
 var openCardPinPopup = function (target) {
   var cardPopup = map.querySelector('.popup');
+
+  var onPopupEscPress = function (evt) {
+    if (evt.keyCode === ESC_KEYCODE) {
+      closePopup();
+    }
+  };
+
   if (cardPopup) {
     map.removeChild(cardPopup);
     document.removeEventListener('keydown', onPopupEscPress);
@@ -251,23 +258,24 @@ var openCardPinPopup = function (target) {
   map.insertBefore(cardPopup, mapFiltersContainer);
   var popupClose = map.querySelector('.popup__close');
 
-  var onPopupEscPress = function (evt) {
-    if (evt.keyCode === ESC_KEYCODE) {
-      closePopup();
-    }
-  };
   var closePopup = function () {
-    map.removeChild(cardPopup);
+    cardPopup = map.querySelector('.map__card');
+    if (cardPopup) {
+      map.removeChild(cardPopup);
+    }
     document.removeEventListener('keydown', onPopupEscPress);
   };
+
   popupClose.addEventListener('click', function () {
     closePopup();
   });
+
   popupClose.addEventListener('keydown', function (evt) {
     if (evt.keyCode === ENTER_KEYCODE) {
       closePopup();
     }
   });
+
   document.addEventListener('keydown', onPopupEscPress);
 };
 
