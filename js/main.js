@@ -308,22 +308,14 @@ var getMinPriceByType = function (typeValue) {
   return '0';
 };
 
-var checkPriceType = function (typeValue) {
+var setMinPrice = function (typeValue) {
   var minPrice = getMinPriceByType(typeValue);
-  var priceValue = +inputPrice.value;
   inputPrice.min = minPrice;
   inputPrice.placeholder = minPrice;
-  minPrice = +minPrice;
-
-  if (priceValue < minPrice) {
-    setErrorValidity(inputPrice, 'Значение меньше минимально допустимого - ' + minPrice);
-  } else {
-    setSuccessValidity(inputPrice);
-  }
 };
 
 selectType.addEventListener('change', function (evt) {
-  checkPriceType(evt.target.value);
+  setMinPrice(evt.target.value);
 });
 
 var setTimeInOut = function (timeOptions, setValue) {
