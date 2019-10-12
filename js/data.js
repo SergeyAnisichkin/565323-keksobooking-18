@@ -73,6 +73,12 @@ window.data = (function () {
         }
       }
       return 'Без типа';
+    },
+    sizeMap: {
+      minX: 0,
+      maxX: maxXLocation,
+      minY: MIN_Y_LOCATION,
+      maxY: MAX_Y_LOCATION
     }
   };
 
