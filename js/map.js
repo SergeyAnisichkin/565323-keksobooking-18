@@ -22,9 +22,9 @@
   var adFormFields = document.querySelectorAll('.ad-form > *');
   var adFormAddressInput = adForm.querySelector('input#address');
   var mapMainPin = mapPins.querySelector('.map__pin--main');
-  var GAP_MAIN_PIN = 5;
-  var minPin = GAP_MAIN_PIN;
-  var maxPin = mapMainPin.clientWidth - GAP_MAIN_PIN;
+  // var GAP_MAIN_PIN = 5;
+  // var minPin = GAP_MAIN_PIN;
+  // var maxPin = mapMainPin.clientWidth - GAP_MAIN_PIN;
   var DROP_PIN_BOTTOM = 53;
   var activePageStatus = false;
 
@@ -101,8 +101,8 @@
       var pinX = getLocationMainPin(mapMainPin).x;
       var pinY = getLocationMainPin(mapMainPin).y + DROP_PIN_BOTTOM;
       var isPinInMap = pinX > minX && pinX < maxX && pinY > minY && pinY < maxY;
-      var isCursorOutPin = moveEvt.offsetX < minPin || moveEvt.offsetY < minPin || moveEvt.offsetX > maxPin || moveEvt.offsetY > maxPin;
-      if (!isPinInMap || isCursorOutPin) {
+      // var isCursorOutPin = moveEvt.offsetX < minPin || moveEvt.offsetY < minPin || moveEvt.offsetX > maxPin || moveEvt.offsetY > maxPin;
+      if (!isPinInMap) {
         mapMainPin.style.top = (mapMainPin.offsetTop + shift.y) + 'px';
         mapMainPin.style.left = (mapMainPin.offsetLeft + shift.x) + 'px';
       }
