@@ -1,7 +1,11 @@
 'use strict';
 
 window.card = (function () {
-
+  var ENTER_KEYCODE = 13;
+  var ESC_KEYCODE = 27;
+  var LENGTH_AVATAR_SRC = 22;
+  var map = document.querySelector('.map');
+  var mapFiltersContainer = map.querySelector('.map__filters-container');
   var mapCardTemplate = document.querySelector('#card').content.querySelector('.map__card');
 
   var changeFeaturesList = function (featuresNode, featuresNotice) {
@@ -43,9 +47,61 @@ window.card = (function () {
     return cardElement;
   };
 
+  var getNoticeBySrc = function (src, notices) {
+    src = src.slice(-LENGTH_AVATAR_SRC);
+    for (var i = 0; i < notices.length; ++i) {
+      if (notices[i].author.avatar === src) {
+        return notices[i];
+      }
+    }
+    return notices[0];
+  };
+
+  var openCardPinPopup = function (target, notices) {
+    var cardPopup = map.querySelector('.popup');
+
+    var onPopupEscPress = function (evt) {
+      if (evt.keyCode === ESC_KEYCODE) {
+        closePopup();
+      }
+    };
+
+    if (cardPopup) {
+      map.removeChild(cardPopup);
+      document.removeEventListener('keydown', onPopupEscPress);
+    }
+    var avatarSrc = (target.tagName === 'IMG') ? target.src : target.children[0].src;
+    cardPopup = window.card.createCard(getNoticeBySrc(avatarSrc, notices));
+    map.insertBefore(cardPopup, mapFiltersContainer);
+    var popupClose = map.querySelector('.popup__close');
+
+    var closePopup = function () {
+      cardPopup = map.querySelector('.map__card');
+      if (cardPopup) {
+        map.removeChild(cardPopup);
+      }
+      document.removeEventListener('keydown', onPopupEscPress);
+    };
+
+    popupClose.addEventListener('click', function () {
+      closePopup();
+    });
+
+    popupClose.addEventListener('keydown', function (evt) {
+      if (evt.keyCode === ENTER_KEYCODE) {
+        closePopup();
+      }
+    });
+
+    document.addEventListener('keydown', onPopupEscPress);
+  };
+
   return {
     createCard: function (notice) {
       return createCardNotice(notice);
+    },
+    openCard: function (target, notices) {
+      return openCardPinPopup(target, notices);
     }
   };
 
