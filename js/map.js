@@ -22,7 +22,7 @@
     document.body.insertAdjacentElement('afterbegin', errorPopup);
   };
 
-  window.backend.load(onLoad, onError);
+  window.load(onLoad, onError);
 
   var mapFilters = mapFiltersContainer.querySelectorAll('.map__filters > *');
   var adForm = document.querySelector('.ad-form');
