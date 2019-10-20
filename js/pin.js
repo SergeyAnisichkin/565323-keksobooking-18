@@ -14,5 +14,4 @@ window.pin = (function () {
       return noticeElement;
     }
   };
-
 })();
