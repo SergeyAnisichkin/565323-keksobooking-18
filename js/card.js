@@ -1,6 +1,6 @@
 'use strict';
 
-window.card = (function () {
+(function () {
   var ENTER_KEYCODE = 13;
   var ESC_KEYCODE = 27;
   var LENGTH_AVATAR_SRC = 22;
@@ -57,7 +57,7 @@ window.card = (function () {
     return notices[0];
   };
 
-  var openCardPinPopup = function (target, notices) {
+  var openCardPopup = function (target, notices) {
     var cardPopup = map.querySelector('.popup');
 
     var onPopupEscPress = function (evt) {
@@ -96,12 +96,12 @@ window.card = (function () {
     document.addEventListener('keydown', onPopupEscPress);
   };
 
-  return {
+  window.card = {
     createCard: function (notice) {
       return createCardNotice(notice);
     },
     openCard: function (target, notices) {
-      return openCardPinPopup(target, notices);
+      return openCardPopup(target, notices);
     }
   };
 
