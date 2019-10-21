@@ -1,8 +1,7 @@
 'use strict';
 
-window.pin = (function () {
-
-  return {
+(function () {
+  window.pin = {
     createPin: function (notice) {
       var mapPinTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
       var mapPin = document.querySelector('.map__pin');
