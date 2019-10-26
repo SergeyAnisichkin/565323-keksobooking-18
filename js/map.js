@@ -1,49 +1,19 @@
 'use strict';
 
 (function () {
-  var ENTER_KEYCODE = 13;
   var map = document.querySelector('.map');
   var mapPins = map.querySelector('.map__pins');
   var mapFiltersContainer = map.querySelector('.map__filters-container');
-  var errorTemplate = document.querySelector('#error').content.querySelector('.error');
   var pinsFragment = document.createDocumentFragment();
   var notices = [];
-
-  var onLoad = function (noticesArray) {
-    for (var i = 0; i < noticesArray.length; i++) {
-      pinsFragment.appendChild(window.pin.createPin(noticesArray[i]));
-    }
-    notices = noticesArray;
-  };
-
-  var onError = function (errorMessage) {
-    var errorPopup = errorTemplate.cloneNode(true);
-    errorPopup.querySelector('.error__message').textContent = errorMessage;
-    document.body.insertAdjacentElement('afterbegin', errorPopup);
-  };
-
-  window.backend.load(onLoad, onError);
-
   var mapFilters = mapFiltersContainer.querySelectorAll('.map__filters > *');
   var adForm = document.querySelector('.ad-form');
   var adFormFields = document.querySelectorAll('.ad-form > *');
   var adFormAddressInput = adForm.querySelector('input#address');
   var mapMainPin = mapPins.querySelector('.map__pin--main');
-  // var GAP_MAIN_PIN = 5;
-  // var minPin = GAP_MAIN_PIN;
-  // var maxPin = mapMainPin.clientWidth - GAP_MAIN_PIN;
-  var DROP_PIN_BOTTOM = 53;
-  var activePageStatus = false;
-
-  var getLocationMainPin = function (mainPin) {
-    var location = {
-      x: parseInt(mainPin.style.left, 10) + Math.floor(mainPin.clientWidth / 2),
-      y: parseInt(mainPin.style.top, 10) + Math.floor(mainPin.clientHeight / 2),
-    };
-    return location;
-  };
-
-  var locationMainPin = getLocationMainPin(mapMainPin);
+  var locationMainPin = window.pin.getLocationMainPin(mapMainPin);
+  var mainPinStartTop = mapMainPin.style.top;
+  var mainPinStartLeft = mapMainPin.style.left;
 
   var toggleDisabled = function (elements) {
     for (var i = 0; i < elements.length; ++i) {
@@ -57,91 +27,48 @@
     toggleDisabled(adFormFields);
   };
 
-  var setInactivePageStatus = function () {
-    toggleDisabledForms();
-    adFormAddressInput.value = locationMainPin.x + ', ' + locationMainPin.y;
-  };
-
-  var setActivePageStatus = function () {
-    toggleDisabledForms();
-    map.classList.remove('map--faded');
-    adForm.classList.remove('ad-form--disabled');
-    adFormAddressInput.value = locationMainPin.x + ', ' + (locationMainPin.y + DROP_PIN_BOTTOM);
-    mapPins.appendChild(pinsFragment);
-    activePageStatus = true;
-    var mapPinElements = map.querySelectorAll('.map__pin:not(.map__pin--main)');
-    addPinsEventListeners(mapPinElements);
-  };
-
-  mapMainPin.addEventListener('mousedown', function (evt) {
-    if (!activePageStatus) {
-      setActivePageStatus();
-    }
-    evt.preventDefault();
-    var startCoords = {
-      x: evt.clientX,
-      y: evt.clientY
-    };
-
-    var onMouseMove = function (moveEvt) {
-      moveEvt.preventDefault();
-      var minX = window.data.sizeMap.minX;
-      var maxX = window.data.sizeMap.maxX;
-      var minY = window.data.sizeMap.minY;
-      var maxY = window.data.sizeMap.maxY;
-      var shift = {
-        x: startCoords.x - moveEvt.clientX,
-        y: startCoords.y - moveEvt.clientY
-      };
-      startCoords = {
-        x: moveEvt.clientX,
-        y: moveEvt.clientY
-      };
-      mapMainPin.style.top = (mapMainPin.offsetTop - shift.y) + 'px';
-      mapMainPin.style.left = (mapMainPin.offsetLeft - shift.x) + 'px';
-      locationMainPin = getLocationMainPin(mapMainPin);
-      var pinX = getLocationMainPin(mapMainPin).x;
-      var pinY = getLocationMainPin(mapMainPin).y + DROP_PIN_BOTTOM;
-      var isPinInMap = pinX > minX && pinX < maxX && pinY > minY && pinY < maxY;
-      // var isCursorOutPin = moveEvt.offsetX < minPin || moveEvt.offsetY < minPin || moveEvt.offsetX > maxPin || moveEvt.offsetY > maxPin;
-      if (!isPinInMap) {
-        mapMainPin.style.top = (mapMainPin.offsetTop + shift.y) + 'px';
-        mapMainPin.style.left = (mapMainPin.offsetLeft + shift.x) + 'px';
-      }
-      pinX = getLocationMainPin(mapMainPin).x;
-      pinY = getLocationMainPin(mapMainPin).y + DROP_PIN_BOTTOM;
-      adFormAddressInput.value = pinX + ', ' + pinY;
-    };
-
-    var onMouseUp = function (upEvt) {
-      upEvt.preventDefault();
-      document.removeEventListener('mousemove', onMouseMove);
-      document.removeEventListener('mouseup', onMouseUp);
-    };
-
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseup', onMouseUp);
-  });
-
-  mapMainPin.addEventListener('keydown', function (evt) {
-    if (evt.keyCode === ENTER_KEYCODE && !activePageStatus) {
-      setActivePageStatus();
-    }
-  });
-
-  var addPinsEventListeners = function (pins) {
-    for (var i = 0; i < pins.length; i++) {
-      pins[i].addEventListener('click', function (evt) {
-        window.card.openCard(evt.target, notices);
-      });
-      pins[i].addEventListener('keydown', function (evt) {
-        if (evt.keyCode === ENTER_KEYCODE) {
-          window.card.openCard(evt.target, notices);
+  window.map = {
+    activePageStatus: false,
+    setInactivePageStatus: function () {
+      if (window.map.activePageStatus) {
+        adForm.reset();
+        map.classList.add('map--faded');
+        adForm.classList.add('ad-form--disabled');
+        var pinsNodeList = mapPins.querySelectorAll('.map__pin:not(.map__pin--main)');
+        for (var i = 0; i < pinsNodeList.length; i++) {
+          mapPins.removeChild(pinsNodeList[i]);
         }
-      });
+        window.card.close();
+        mapMainPin.style.top = mainPinStartTop;
+        mapMainPin.style.left = mainPinStartLeft;
+        locationMainPin = window.pin.getLocationMainPin(mapMainPin);
+        window.map.activePageStatus = false;
+      }
+      toggleDisabledForms();
+      adFormAddressInput.value = locationMainPin.x + ', ' + locationMainPin.y;
+    },
+    setActivePageStatus: function () {
+      toggleDisabledForms();
+      map.classList.remove('map--faded');
+      adForm.classList.remove('ad-form--disabled');
+      adFormAddressInput.value = locationMainPin.x + ', ' + (locationMainPin.y + window.data.dropPinBottom);
+      window.backend.load(onPinsLoad, window.error.show);
+      mapPins.appendChild(pinsFragment);
+      var mapPinElements = map.querySelectorAll('.map__pin:not(.map__pin--main)');
+      window.pin.addPinsEventListeners(mapPinElements, notices);
+      window.map.activePageStatus = true;
     }
   };
 
-  setInactivePageStatus();
+  var onPinsLoad = function (noticesArray) {
+    for (var i = 0; i < noticesArray.length; i++) {
+      pinsFragment.appendChild(window.pin.createPin(noticesArray[i]));
+    }
+    notices = noticesArray;
+  };
+
+  window.backend.load(onPinsLoad, window.error.show);
+  window.map.setInactivePageStatus();
+  window.pin.addMainPinListeners(mapMainPin, adFormAddressInput);
 
 })();
