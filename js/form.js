@@ -92,4 +92,17 @@
     setTimeInOut(timeIn.children, evt.target.value);
   });
 
+  var onFormLoad = function () {
+    window.map.setInactivePageStatus();
+    var successTemplate = document.querySelector('#success').content.querySelector('.success');
+    var successPopup = successTemplate.cloneNode(true);
+    document.body.insertAdjacentElement('afterbegin', successPopup);
+    window.popup.addPopupEventListeners('.success');
+  };
+
+  adForm.addEventListener('submit', function (evt) {
+    window.backend.save(new FormData(adForm), onFormLoad, window.error.show);
+    evt.preventDefault();
+  });
+
 })();

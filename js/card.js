@@ -57,39 +57,30 @@
     return notices[0];
   };
 
+  var onPopupEscPress = function (evt) {
+    if (evt.keyCode === ESC_KEYCODE) {
+      window.card.close();
+    }
+  };
+
   var openCardPopup = function (target, notices) {
     var cardPopup = map.querySelector('.popup');
-
-    var onPopupEscPress = function (evt) {
-      if (evt.keyCode === ESC_KEYCODE) {
-        closePopup();
-      }
-    };
-
     if (cardPopup) {
       map.removeChild(cardPopup);
       document.removeEventListener('keydown', onPopupEscPress);
     }
     var avatarSrc = (target.tagName === 'IMG') ? target.src : target.children[0].src;
-    cardPopup = window.card.createCard(getNoticeBySrc(avatarSrc, notices));
+    cardPopup = window.card.create(getNoticeBySrc(avatarSrc, notices));
     map.insertBefore(cardPopup, mapFiltersContainer);
     var popupClose = map.querySelector('.popup__close');
 
-    var closePopup = function () {
-      cardPopup = map.querySelector('.map__card');
-      if (cardPopup) {
-        map.removeChild(cardPopup);
-      }
-      document.removeEventListener('keydown', onPopupEscPress);
-    };
-
     popupClose.addEventListener('click', function () {
-      closePopup();
+      window.card.close();
     });
 
     popupClose.addEventListener('keydown', function (evt) {
       if (evt.keyCode === ENTER_KEYCODE) {
-        closePopup();
+        window.card.close();
       }
     });
 
@@ -97,11 +88,18 @@
   };
 
   window.card = {
-    createCard: function (notice) {
+    create: function (notice) {
       return createCardNotice(notice);
     },
-    openCard: function (target, notices) {
+    open: function (target, notices) {
       return openCardPopup(target, notices);
+    },
+    close: function () {
+      var cardPopup = map.querySelector('.map__card');
+      if (cardPopup) {
+        map.removeChild(cardPopup);
+      }
+      document.removeEventListener('keydown', onPopupEscPress);
     }
   };
 
