@@ -11,6 +11,7 @@
   var MAX_Y_LOCATION = 630;
   var DROP_PIN_BOTTOM = 53;
   var maxXLocation = document.querySelector('.map').clientWidth;
+  var LIMIT_MAP_NOTICES = 5;
 
   window.data = {
     getOfferTypeValue: function (offerTypeKey) {
@@ -27,7 +28,8 @@
       minY: MIN_Y_LOCATION,
       maxY: MAX_Y_LOCATION
     },
-    dropPinBottom: DROP_PIN_BOTTOM
+    dropPinBottom: DROP_PIN_BOTTOM,
+    limitNotices: LIMIT_MAP_NOTICES
   };
 
 })();

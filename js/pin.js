@@ -16,6 +16,22 @@
       noticeElement.querySelector('img').alt = notice.offer.title;
       return noticeElement;
     },
+
+    createPinsFragment: function (notices) {
+      var pinsFragment = document.createDocumentFragment();
+      notices.forEach(function (notice) {
+        pinsFragment.appendChild(window.pin.createPin(notice));
+      });
+      return pinsFragment;
+    },
+
+    removePins: function (mapPins) {
+      var pinsList = mapPins.querySelectorAll('.map__pin:not(.map__pin--main)');
+      pinsList.forEach(function (pin) {
+        mapPins.removeChild(pin);
+      });
+    },
+
     addPinsEventListeners: function (pins, notices) {
       for (var i = 0; i < pins.length; i++) {
         pins[i].addEventListener('click', function (evt) {
@@ -28,6 +44,7 @@
         });
       }
     },
+
     getLocationMainPin: function (mainPin) {
       var location = {
         x: parseInt(mainPin.style.left, 10) + Math.floor(mainPin.clientWidth / 2),

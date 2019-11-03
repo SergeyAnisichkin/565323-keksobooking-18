@@ -4,9 +4,8 @@
   var map = document.querySelector('.map');
   var mapPins = map.querySelector('.map__pins');
   var mapFiltersContainer = map.querySelector('.map__filters-container');
-  var pinsFragment = document.createDocumentFragment();
-  var notices = [];
   var mapFilters = mapFiltersContainer.querySelectorAll('.map__filters > *');
+  var filtersForm = mapFiltersContainer.querySelector('.map__filters');
   var adForm = document.querySelector('.ad-form');
   var adFormFields = document.querySelectorAll('.ad-form > *');
   var adFormAddressInput = adForm.querySelector('input#address');
@@ -14,6 +13,7 @@
   var locationMainPin = window.pin.getLocationMainPin(mapMainPin);
   var mainPinStartTop = mapMainPin.style.top;
   var mainPinStartLeft = mapMainPin.style.left;
+  var notices = [];
 
   var toggleDisabled = function (elements) {
     for (var i = 0; i < elements.length; ++i) {
@@ -29,15 +29,15 @@
 
   window.map = {
     activePageStatus: false,
+    filters: window.filter.getFiltersState(mapFilters),
+
     setInactivePageStatus: function () {
       if (window.map.activePageStatus) {
         adForm.reset();
+        filtersForm.reset();
         map.classList.add('map--faded');
         adForm.classList.add('ad-form--disabled');
-        var pinsNodeList = mapPins.querySelectorAll('.map__pin:not(.map__pin--main)');
-        for (var i = 0; i < pinsNodeList.length; i++) {
-          mapPins.removeChild(pinsNodeList[i]);
-        }
+        window.pin.removePins(mapPins);
         window.card.close();
         mapMainPin.style.top = mainPinStartTop;
         mapMainPin.style.left = mainPinStartLeft;
@@ -47,23 +47,22 @@
       toggleDisabledForms();
       adFormAddressInput.value = locationMainPin.x + ', ' + locationMainPin.y;
     },
+
     setActivePageStatus: function () {
       toggleDisabledForms();
       map.classList.remove('map--faded');
+      window.filter.addFilterNodesListeners(mapPins, mapFilters, notices);
       adForm.classList.remove('ad-form--disabled');
       adFormAddressInput.value = locationMainPin.x + ', ' + (locationMainPin.y + window.data.dropPinBottom);
-      window.backend.load(onPinsLoad, window.error.show);
-      mapPins.appendChild(pinsFragment);
-      var mapPinElements = map.querySelectorAll('.map__pin:not(.map__pin--main)');
+      var filteredNotices = window.filter.getFilteredNotices(notices);
+      mapPins.appendChild(window.pin.createPinsFragment(filteredNotices));
+      var mapPinElements = mapPins.querySelectorAll('.map__pin:not(.map__pin--main)');
       window.pin.addPinsEventListeners(mapPinElements, notices);
       window.map.activePageStatus = true;
     }
   };
 
   var onPinsLoad = function (noticesArray) {
-    for (var i = 0; i < noticesArray.length; i++) {
-      pinsFragment.appendChild(window.pin.createPin(noticesArray[i]));
-    }
     notices = noticesArray;
   };
 
@@ -72,3 +71,7 @@
   window.pin.addMainPinListeners(mapMainPin, adFormAddressInput);
 
 })();
+
+/**
+console.log(notices);
+*/
