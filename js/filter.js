@@ -1,8 +1,8 @@
 'use strict';
 
 (function () {
-  var HOUSING_FILTER_ID = 'housing-';
-  var FEATURES_FILTER_ID = 'filter-';
+  var HOUSING_FILTER_PREFIX = 'housing-';
+  var FEATURES_FILTER_PREFIX = 'filter-';
   var START_CHECK_STATUS = true;
   var LOW_PRICE_LEVEL = 10000;
   var HIGH_PRICE_LEVEL = 50000;
@@ -32,11 +32,11 @@
     for (var key in filtersState) {
       if ({}.hasOwnProperty.call(filtersState, key)) {
         var idKey;
-        if (key.includes(HOUSING_FILTER_ID)) {
-          idKey = key.replace(HOUSING_FILTER_ID, '');
+        if (key.includes(HOUSING_FILTER_PREFIX)) {
+          idKey = key.replace(HOUSING_FILTER_PREFIX, '');
           checkStatus = checkHousingFilters(idKey, filtersState[key], notice.offer[idKey]);
-        } else if (key.includes(FEATURES_FILTER_ID)) {
-          idKey = key.replace(FEATURES_FILTER_ID, '');
+        } else if (key.includes(FEATURES_FILTER_PREFIX)) {
+          idKey = key.replace(FEATURES_FILTER_PREFIX, '');
           checkStatus = filtersState[key] ? notice.offer.features.includes(idKey) : true;
         }
         if (checkStatus === false) {
@@ -68,12 +68,12 @@
     },
 
     getFilteredNotices: function (notices) {
-      var limitNotices = window.data.limitNotices;
+      var noticesLimit = window.data.noticesLimit;
       var filteredNotices = notices.filter(function (notice) {
         return checkFilters(notice);
       });
-      if (filteredNotices.length > limitNotices) {
-        return notices.slice(0, limitNotices);
+      if (filteredNotices.length > noticesLimit) {
+        return notices.slice(0, noticesLimit);
       }
       return filteredNotices;
     },
