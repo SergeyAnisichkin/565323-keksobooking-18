@@ -5,8 +5,9 @@
     show: function (errorMessage) {
       var errorTemplate = document.querySelector('#error').content.querySelector('.error');
       var errorPopup = errorTemplate.cloneNode(true);
+      var documentMain = document.querySelector('main');
       errorPopup.querySelector('.error__message').textContent = errorMessage;
-      document.body.insertAdjacentElement('afterbegin', errorPopup);
+      documentMain.insertAdjacentElement('afterbegin', errorPopup);
       window.popup.addPopupEventListeners('.error');
     }
   };

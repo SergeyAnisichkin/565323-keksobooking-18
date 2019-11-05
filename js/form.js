@@ -1,4 +1,3 @@
-
 'use strict';
 
 (function () {
@@ -96,7 +95,8 @@
     window.map.setInactivePageStatus();
     var successTemplate = document.querySelector('#success').content.querySelector('.success');
     var successPopup = successTemplate.cloneNode(true);
-    document.body.insertAdjacentElement('afterbegin', successPopup);
+    var documentMain = document.querySelector('main');
+    documentMain.insertAdjacentElement('afterbegin', successPopup);
     window.popup.addPopupEventListeners('.success');
   };
 
