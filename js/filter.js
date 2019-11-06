@@ -39,7 +39,7 @@
           idKey = key.replace(FEATURES_FILTER_PREFIX, '');
           checkStatus = filtersState[key] ? notice.offer.features.includes(idKey) : true;
         }
-        if (checkStatus === false) {
+        if (!checkStatus) {
           break;
         }
       }

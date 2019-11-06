@@ -15,16 +15,10 @@
   var mainPinStartLeft = mapMainPin.style.left;
   var notices = [];
 
-  var toggleDisabled = function (elements) {
+  var toggleDisabledStatus = function (elements) {
     for (var i = 0; i < elements.length; ++i) {
       elements[i].disabled = elements[i].disabled ? false : true;
     }
-    return elements;
-  };
-
-  var toggleDisabledForms = function () {
-    toggleDisabled(mapFilters);
-    toggleDisabled(adFormFields);
   };
 
   window.map = {
@@ -33,27 +27,31 @@
 
     setInactivePageStatus: function () {
       if (window.map.activePageStatus) {
-        adForm.reset();
+        window.form.removePhoto();
         filtersForm.reset();
-        map.classList.add('map--faded');
-        adForm.classList.add('ad-form--disabled');
+        adForm.reset();
         window.pin.removePins(mapPins);
         window.card.close();
         mapMainPin.style.top = mainPinStartTop;
         mapMainPin.style.left = mainPinStartLeft;
         locationMainPin = window.pin.getLocationMainPin(mapMainPin);
         window.map.activePageStatus = false;
+        map.classList.add('map--faded');
+        adForm.classList.add('ad-form--disabled');
       }
-      toggleDisabledForms();
+      toggleDisabledStatus(mapFilters);
+      toggleDisabledStatus(adFormFields);
       adFormAddressInput.value = locationMainPin.x + ', ' + locationMainPin.y;
     },
 
     setActivePageStatus: function () {
-      toggleDisabledForms();
+      toggleDisabledStatus(mapFilters);
+      toggleDisabledStatus(adFormFields);
       map.classList.remove('map--faded');
       window.filter.addFilterNodesListeners(mapPins, mapFilters, notices);
       adForm.classList.remove('ad-form--disabled');
       adFormAddressInput.value = locationMainPin.x + ', ' + (locationMainPin.y + window.data.dropPinBottom);
+      window.map.filters = window.filter.getFiltersState(mapFilters);
       var filteredNotices = window.filter.getFilteredNotices(notices);
       mapPins.appendChild(window.pin.createPinsFragment(filteredNotices));
       var mapPinElements = mapPins.querySelectorAll('.map__pin:not(.map__pin--main)');
@@ -71,7 +69,3 @@
   window.pin.addMainPinListeners(mapMainPin, adFormAddressInput);
 
 })();
-
-/**
-console.log(notices);
-*/

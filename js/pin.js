@@ -2,9 +2,7 @@
 
 (function () {
   var ENTER_KEYCODE = 13;
-  // var GAP_MAIN_PIN = 5;
-  // var minPin = GAP_MAIN_PIN;
-  // var maxPin = mainPin.clientWidth - GAP_MAIN_PIN;
+
   window.pin = {
     createPin: function (notice) {
       var mapPinTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
@@ -85,7 +83,6 @@
           var pinX = locationMainPin.x;
           var pinY = locationMainPin.y + window.data.dropPinBottom;
           var isPinInMap = pinX > minX && pinX < maxX && pinY > minY && pinY < maxY;
-          // var isCursorOutPin = moveEvt.offsetX < minPin || moveEvt.offsetY < minPin || moveEvt.offsetX > maxPin || moveEvt.offsetY > maxPin;
           if (!isPinInMap) {
             mainPin.style.top = (mainPin.offsetTop + shift.y) + 'px';
             mainPin.style.left = (mainPin.offsetLeft + shift.x) + 'px';

@@ -9,6 +9,11 @@
   var inputPrice = adForm.querySelector('#price');
   var timeIn = adForm.querySelector('#timein');
   var timeOut = adForm.querySelector('#timeout');
+  var avatarFileChooser = document.querySelector('.ad-form__field input[type=file]');
+  var avatarPreview = document.querySelector('.ad-form-header__preview img');
+  var photoFileChooser = document.querySelector('.ad-form__upload input[type=file]');
+  var photoPreview = document.querySelector('.ad-form__photo');
+  var formReset = adForm.querySelector('.ad-form__reset');
 
   var checkRoomCapacity = function (room, capacity) {
     room = +room;
@@ -101,8 +106,25 @@
   };
 
   adForm.addEventListener('submit', function (evt) {
-    window.backend.save(new FormData(adForm), onFormLoad, window.error.show);
     evt.preventDefault();
+    window.backend.save(new FormData(adForm), onFormLoad, window.error.show);
   });
+
+  formReset.addEventListener('click', function (evt) {
+    evt.preventDefault();
+    window.map.setInactivePageStatus();
+  });
+
+  window.upload.addFileListener(avatarFileChooser, avatarPreview);
+  window.upload.addFileListener(photoFileChooser, photoPreview);
+
+  window.form = {
+    removePhoto: function () {
+      avatarPreview.src = 'img/muffin-grey.svg';
+      while (photoPreview.querySelector('img')) {
+        photoPreview.removeChild(photoPreview.querySelector('img'));
+      }
+    }
+  };
 
 })();
