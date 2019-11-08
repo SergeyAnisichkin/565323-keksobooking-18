@@ -2,9 +2,7 @@
 
 (function () {
   var ENTER_KEYCODE = 13;
-  // var GAP_MAIN_PIN = 5;
-  // var minPin = GAP_MAIN_PIN;
-  // var maxPin = mainPin.clientWidth - GAP_MAIN_PIN;
+
   window.pin = {
     createPin: function (notice) {
       var mapPinTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
@@ -16,6 +14,22 @@
       noticeElement.querySelector('img').alt = notice.offer.title;
       return noticeElement;
     },
+
+    createPinsFragment: function (notices) {
+      var pinsFragment = document.createDocumentFragment();
+      notices.forEach(function (notice) {
+        pinsFragment.appendChild(window.pin.createPin(notice));
+      });
+      return pinsFragment;
+    },
+
+    removePins: function (mapPins) {
+      var pinsList = mapPins.querySelectorAll('.map__pin:not(.map__pin--main)');
+      pinsList.forEach(function (pin) {
+        mapPins.removeChild(pin);
+      });
+    },
+
     addPinsEventListeners: function (pins, notices) {
       for (var i = 0; i < pins.length; i++) {
         pins[i].addEventListener('click', function (evt) {
@@ -28,6 +42,7 @@
         });
       }
     },
+
     getLocationMainPin: function (mainPin) {
       var location = {
         x: parseInt(mainPin.style.left, 10) + Math.floor(mainPin.clientWidth / 2),
@@ -68,7 +83,6 @@
           var pinX = locationMainPin.x;
           var pinY = locationMainPin.y + window.data.dropPinBottom;
           var isPinInMap = pinX > minX && pinX < maxX && pinY > minY && pinY < maxY;
-          // var isCursorOutPin = moveEvt.offsetX < minPin || moveEvt.offsetY < minPin || moveEvt.offsetX > maxPin || moveEvt.offsetY > maxPin;
           if (!isPinInMap) {
             mainPin.style.top = (mainPin.offsetTop + shift.y) + 'px';
             mainPin.style.left = (mainPin.offsetLeft + shift.x) + 'px';

@@ -6,7 +6,8 @@
       var ESC_KEYCODE = 27;
       var closePopup = function () {
         var popup = document.querySelector(classPopup);
-        document.body.removeChild(popup);
+        var documentMain = document.querySelector('main');
+        documentMain.removeChild(popup);
         document.removeEventListener('keydown', onEscPress);
         document.removeEventListener('click', onDocumentClick);
       };
