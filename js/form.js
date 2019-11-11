@@ -1,10 +1,11 @@
 'use strict';
 
 (function () {
+  var INVALID_BORDER_STYLE = '5px solid orange';
+
   var adForm = document.querySelector('.ad-form');
   var selectRoom = adForm.querySelector('#room_number');
   var selectCapacity = adForm.querySelector('#capacity');
-  var INVALID_BORDER_STYLE = '5px solid orange';
   var selectType = adForm.querySelector('#type');
   var inputPrice = adForm.querySelector('#price');
   var timeIn = adForm.querySelector('#timein');
@@ -69,22 +70,13 @@
     return '0';
   };
 
-  var setMinPrice = function (typeValue) {
-    var minPrice = getMinPriceByType(typeValue);
-    inputPrice.min = minPrice;
-    inputPrice.placeholder = minPrice;
-  };
-
   selectType.addEventListener('change', function (evt) {
-    setMinPrice(evt.target.value);
+    window.form.setMinPrice(evt.target.value);
   });
 
   var setTimeInOut = function (timeOptions, setValue) {
     for (var i = 0; i < timeOptions.length; ++i) {
-      timeOptions[i].selected = false;
-      if (timeOptions[i].value === setValue) {
-        timeOptions[i].selected = true;
-      }
+      timeOptions[i].selected = (timeOptions[i].value === setValue) ? true : false;
     }
   };
 
@@ -124,7 +116,14 @@
       while (photoPreview.querySelector('img')) {
         photoPreview.removeChild(photoPreview.querySelector('img'));
       }
+    },
+
+    setMinPrice: function (typeValue) {
+      var minPrice = getMinPriceByType(typeValue);
+      inputPrice.min = minPrice;
+      inputPrice.placeholder = minPrice;
     }
+
   };
 
 })();

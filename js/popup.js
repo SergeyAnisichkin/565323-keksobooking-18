@@ -1,9 +1,10 @@
 'use strict';
 
 (function () {
+  var ESC_KEYCODE = 27;
+
   window.popup = {
     addPopupEventListeners: function (classPopup) {
-      var ESC_KEYCODE = 27;
       var closePopup = function () {
         var popup = document.querySelector(classPopup);
         var documentMain = document.querySelector('main');

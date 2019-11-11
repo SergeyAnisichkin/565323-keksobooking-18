@@ -8,8 +8,8 @@
       fileChooser.addEventListener('change', function () {
         var file = fileChooser.files[0];
         var fileName = file.name.toLowerCase();
-        var matches = FILE_TYPES.some(function (it) {
-          return fileName.endsWith(it);
+        var matches = FILE_TYPES.some(function (fileType) {
+          return fileName.endsWith(fileType);
         });
 
         if (matches) {
@@ -19,6 +19,8 @@
               var newPhoto = document.createElement('img');
               newPhoto.src = reader.result;
               newPhoto.alt = 'Фото жилья';
+              newPhoto.width = '70';
+              newPhoto.height = '70';
               preview.append(newPhoto);
             } else {
               preview.src = reader.result;

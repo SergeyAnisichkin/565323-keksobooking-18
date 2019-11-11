@@ -3,27 +3,29 @@
 (function () {
   var ENTER_KEYCODE = 13;
   var ESC_KEYCODE = 27;
+
   var map = document.querySelector('.map');
   var mapFiltersContainer = map.querySelector('.map__filters-container');
   var mapCardTemplate = document.querySelector('#card').content.querySelector('.map__card');
 
-  var changeFeaturesList = function (featuresNode, featuresNotice) {
+  var changeFeaturesList = function (featuresNode, noticeFeatures) {
     var copyChild = featuresNode.firstElementChild;
+    copyChild.className = 'popup__feature';
     while (featuresNode.querySelector('.popup__feature')) {
       featuresNode.removeChild(featuresNode.querySelector('.popup__feature'));
     }
-    for (var i = 0; i < featuresNotice.length; ++i) {
-      copyChild.setAttribute('class', 'popup__feature popup__feature--' + featuresNotice[i]);
+    for (var i = 0; i < noticeFeatures.length; i++) {
+      copyChild.classList.add('popup__feature--' + noticeFeatures[i]);
       featuresNode.appendChild(copyChild.cloneNode(true));
     }
     return featuresNode;
   };
 
-  var addPhotosList = function (photosNode, photosNotice) {
+  var addPhotosList = function (photosNode, noticePhotos) {
     var copyChild = photosNode.querySelector('.popup__photo');
     photosNode.removeChild(copyChild);
-    for (var i = 0; i < photosNotice.length; ++i) {
-      copyChild.src = photosNotice[i];
+    for (var i = 0; i < noticePhotos.length; i++) {
+      copyChild.src = noticePhotos[i];
       photosNode.appendChild(copyChild.cloneNode(true));
     }
     return photosNode;
@@ -80,8 +82,8 @@
         map.removeChild(cardPopup);
         document.removeEventListener('keydown', onPopupEscPress);
       }
-      var pinImgAlt = (target.tagName === 'IMG') ? target.alt : target.children[0].alt;
-      cardPopup = window.card.create(getNoticeByAlt(pinImgAlt, notices));
+      var pinImageAlt = (target.tagName === 'IMG') ? target.alt : target.children[0].alt;
+      cardPopup = window.card.create(getNoticeByAlt(pinImageAlt, notices));
 
       if (cardPopup) {
         map.insertBefore(cardPopup, mapFiltersContainer);
