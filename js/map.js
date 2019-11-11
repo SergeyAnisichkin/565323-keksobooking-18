@@ -47,10 +47,14 @@
     },
 
     setActivePageStatus: function () {
+      var onPinsLoad = function (noticesArray) {
+        window.pin.notices = noticesArray;
+      };
       toggleDisabledStatus(mapFilters);
       toggleDisabledStatus(adFormFields);
       map.classList.remove('map--faded');
-      var notices = window.backend.load(window.error.show);
+      window.backend.load(onPinsLoad, window.error.show);
+      var notices = window.pin.notices;
       window.filter.addFilterNodesListeners(mapPins, mapFilters, notices);
       adForm.classList.remove('ad-form--disabled');
       adFormAddressInput.value = locationMainPin.x + ', ' + (locationMainPin.y + window.data.dropPinBottom);
