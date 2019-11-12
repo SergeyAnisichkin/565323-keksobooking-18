@@ -1,7 +1,7 @@
 'use strict';
 
 (function () {
-  var INVALID_BORDER_STYLE = '5px solid orange';
+  var START_TYPE_VALUE = 'bungalo';
 
   var adForm = document.querySelector('.ad-form');
   var selectRoom = adForm.querySelector('#room_number');
@@ -31,21 +31,11 @@
     return '';
   };
 
-  var setSuccessValidity = function (element) {
-    element.style.border = '';
-    element.setCustomValidity('');
-  };
-
-  var setErrorValidity = function (element, message) {
-    element.style.border = INVALID_BORDER_STYLE;
-    element.setCustomValidity(message);
-  };
-
   var setResultRoomValidity = function (select, message) {
-    setSuccessValidity(selectRoom);
-    setSuccessValidity(selectCapacity);
+    selectRoom.setCustomValidity('');
+    selectCapacity.setCustomValidity('');
     if (message) {
-      setErrorValidity(select, message);
+      select.setCustomValidity(message);
     }
   };
 
@@ -70,8 +60,14 @@
     return '0';
   };
 
+  var setMinPrice = function (typeValue) {
+    var minPrice = getMinPriceByType(typeValue);
+    inputPrice.min = minPrice;
+    inputPrice.placeholder = minPrice;
+  };
+
   selectType.addEventListener('change', function (evt) {
-    window.form.setMinPrice(evt.target.value);
+    setMinPrice(evt.target.value);
   });
 
   var setTimeInOut = function (timeOptions, setValue) {
@@ -102,6 +98,16 @@
     window.backend.save(new FormData(adForm), onFormLoad, window.error.show);
   });
 
+  adForm.addEventListener('reset', function () {
+    selectRoom.setCustomValidity('');
+    selectCapacity.setCustomValidity('');
+    setMinPrice(START_TYPE_VALUE);
+    avatarPreview.src = 'img/muffin-grey.svg';
+    while (photoPreview.querySelector('img')) {
+      photoPreview.removeChild(photoPreview.querySelector('img'));
+    }
+  });
+
   formReset.addEventListener('click', function (evt) {
     evt.preventDefault();
     window.map.setInactivePageStatus();
@@ -109,21 +115,5 @@
 
   window.upload.addFileListener(avatarFileChooser, avatarPreview);
   window.upload.addFileListener(photoFileChooser, photoPreview);
-
-  window.form = {
-    removePhoto: function () {
-      avatarPreview.src = 'img/muffin-grey.svg';
-      while (photoPreview.querySelector('img')) {
-        photoPreview.removeChild(photoPreview.querySelector('img'));
-      }
-    },
-
-    setMinPrice: function (typeValue) {
-      var minPrice = getMinPriceByType(typeValue);
-      inputPrice.min = minPrice;
-      inputPrice.placeholder = minPrice;
-    }
-
-  };
 
 })();

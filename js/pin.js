@@ -4,8 +4,6 @@
   var ENTER_KEYCODE = 13;
 
   window.pin = {
-    notice: [],
-
     createPin: function (notice) {
       var mapPinTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
       var mapPin = document.querySelector('.map__pin');
