@@ -1,10 +1,11 @@
 'use strict';
 
 (function () {
+  var START_TYPE_VALUE = 'bungalo';
+
   var adForm = document.querySelector('.ad-form');
   var selectRoom = adForm.querySelector('#room_number');
   var selectCapacity = adForm.querySelector('#capacity');
-  var INVALID_BORDER_STYLE = '5px solid orange';
   var selectType = adForm.querySelector('#type');
   var inputPrice = adForm.querySelector('#price');
   var timeIn = adForm.querySelector('#timein');
@@ -30,21 +31,11 @@
     return '';
   };
 
-  var setSuccessValidity = function (element) {
-    element.style.border = '';
-    element.setCustomValidity('');
-  };
-
-  var setErrorValidity = function (element, message) {
-    element.style.border = INVALID_BORDER_STYLE;
-    element.setCustomValidity(message);
-  };
-
   var setResultRoomValidity = function (select, message) {
-    setSuccessValidity(selectRoom);
-    setSuccessValidity(selectCapacity);
+    selectRoom.setCustomValidity('');
+    selectCapacity.setCustomValidity('');
     if (message) {
-      setErrorValidity(select, message);
+      select.setCustomValidity(message);
     }
   };
 
@@ -81,10 +72,7 @@
 
   var setTimeInOut = function (timeOptions, setValue) {
     for (var i = 0; i < timeOptions.length; ++i) {
-      timeOptions[i].selected = false;
-      if (timeOptions[i].value === setValue) {
-        timeOptions[i].selected = true;
-      }
+      timeOptions[i].selected = (timeOptions[i].value === setValue) ? true : false;
     }
   };
 
@@ -110,6 +98,16 @@
     window.backend.save(new FormData(adForm), onFormLoad, window.error.show);
   });
 
+  adForm.addEventListener('reset', function () {
+    selectRoom.setCustomValidity('');
+    selectCapacity.setCustomValidity('');
+    setMinPrice(START_TYPE_VALUE);
+    avatarPreview.src = 'img/muffin-grey.svg';
+    while (photoPreview.querySelector('img')) {
+      photoPreview.removeChild(photoPreview.querySelector('img'));
+    }
+  });
+
   formReset.addEventListener('click', function (evt) {
     evt.preventDefault();
     window.map.setInactivePageStatus();
@@ -117,14 +115,5 @@
 
   window.upload.addFileListener(avatarFileChooser, avatarPreview);
   window.upload.addFileListener(photoFileChooser, photoPreview);
-
-  window.form = {
-    removePhoto: function () {
-      avatarPreview.src = 'img/muffin-grey.svg';
-      while (photoPreview.querySelector('img')) {
-        photoPreview.removeChild(photoPreview.querySelector('img'));
-      }
-    }
-  };
 
 })();

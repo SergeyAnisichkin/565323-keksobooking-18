@@ -13,12 +13,23 @@
   var locationMainPin = window.pin.getLocationMainPin(mapMainPin);
   var mainPinStartTop = mapMainPin.style.top;
   var mainPinStartLeft = mapMainPin.style.left;
-  var notices = [];
 
   var toggleDisabledStatus = function (elements) {
     for (var i = 0; i < elements.length; ++i) {
-      elements[i].disabled = elements[i].disabled ? false : true;
+      elements[i].disabled = !elements[i].disabled;
     }
+  };
+
+  var onPinsLoad = function (noticesArray) {
+    var notices = noticesArray;
+    window.filter.addFilterNodesListeners(mapPins, mapFilters, notices);
+    adForm.classList.remove('ad-form--disabled');
+    adFormAddressInput.value = locationMainPin.x + ', ' + (locationMainPin.y + window.data.dropPinBottom);
+    window.map.filters = window.filter.getFiltersState(mapFilters);
+    var filteredNotices = window.filter.getFilteredNotices(notices);
+    mapPins.appendChild(window.pin.createPinsFragment(filteredNotices));
+    var mapPinElements = mapPins.querySelectorAll('.map__pin:not(.map__pin--main)');
+    window.pin.addPinsEventListeners(mapPinElements, notices);
   };
 
   window.map = {
@@ -27,7 +38,6 @@
 
     setInactivePageStatus: function () {
       if (window.map.activePageStatus) {
-        window.form.removePhoto();
         filtersForm.reset();
         adForm.reset();
         window.pin.removePins(mapPins);
@@ -48,23 +58,11 @@
       toggleDisabledStatus(mapFilters);
       toggleDisabledStatus(adFormFields);
       map.classList.remove('map--faded');
-      window.filter.addFilterNodesListeners(mapPins, mapFilters, notices);
-      adForm.classList.remove('ad-form--disabled');
-      adFormAddressInput.value = locationMainPin.x + ', ' + (locationMainPin.y + window.data.dropPinBottom);
-      window.map.filters = window.filter.getFiltersState(mapFilters);
-      var filteredNotices = window.filter.getFilteredNotices(notices);
-      mapPins.appendChild(window.pin.createPinsFragment(filteredNotices));
-      var mapPinElements = mapPins.querySelectorAll('.map__pin:not(.map__pin--main)');
-      window.pin.addPinsEventListeners(mapPinElements, notices);
+      window.backend.load(onPinsLoad, window.error.show);
       window.map.activePageStatus = true;
     }
   };
 
-  var onPinsLoad = function (noticesArray) {
-    notices = noticesArray;
-  };
-
-  window.backend.load(onPinsLoad, window.error.show);
   window.map.setInactivePageStatus();
   window.pin.addMainPinListeners(mapMainPin, adFormAddressInput);
 
