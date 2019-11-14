@@ -30,6 +30,7 @@
     mapPins.appendChild(window.pin.createPinsFragment(filteredNotices));
     var mapPinElements = mapPins.querySelectorAll('.map__pin:not(.map__pin--main)');
     window.pin.addPinsEventListeners(mapPinElements, notices);
+    toggleDisabledStatus(mapFilters);
   };
 
   window.map = {
@@ -55,10 +56,9 @@
     },
 
     setActivePageStatus: function () {
-      toggleDisabledStatus(mapFilters);
-      toggleDisabledStatus(adFormFields);
       map.classList.remove('map--faded');
       window.backend.load(onPinsLoad, window.error.show);
+      toggleDisabledStatus(adFormFields);
       window.map.activePageStatus = true;
     }
   };
