@@ -3,6 +3,18 @@
 (function () {
   var ENTER_KEYCODE = 13;
 
+  var minX = window.data.sizeMap.minX;
+  var maxX = window.data.sizeMap.maxX;
+  var minY = window.data.sizeMap.minY;
+  var maxY = window.data.sizeMap.maxY;
+
+  var getPinInMapStatus = function (mainPin) {
+    var locationMainPin = window.pin.getLocationMainPin(mainPin);
+    var pinX = locationMainPin.x;
+    var pinY = locationMainPin.y + window.data.dropPinBottom;
+    return pinX > minX && pinX < maxX && pinY > minY && pinY < maxY;
+  };
+
   window.pin = {
     createPin: function (notice) {
       var mapPinTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
@@ -31,16 +43,16 @@
     },
 
     addPinsEventListeners: function (pins, notices) {
-      for (var i = 0; i < pins.length; i++) {
-        pins[i].addEventListener('click', function (evt) {
+      pins.forEach(function (pin) {
+        pin.addEventListener('click', function (evt) {
           window.card.open(evt.target, notices);
         });
-        pins[i].addEventListener('keydown', function (evt) {
+        pin.addEventListener('keydown', function (evt) {
           if (evt.keyCode === ENTER_KEYCODE) {
             window.card.open(evt.target, notices);
           }
         });
-      }
+      });
     },
 
     getLocationMainPin: function (mainPin) {
@@ -57,7 +69,6 @@
           window.map.setActivePageStatus();
         }
         evt.preventDefault();
-
         var startCoords = {
           x: evt.clientX,
           y: evt.clientY
@@ -65,10 +76,6 @@
 
         var onMouseMove = function (moveEvt) {
           moveEvt.preventDefault();
-          var minX = window.data.sizeMap.minX;
-          var maxX = window.data.sizeMap.maxX;
-          var minY = window.data.sizeMap.minY;
-          var maxY = window.data.sizeMap.maxY;
           var shift = {
             x: startCoords.x - moveEvt.clientX,
             y: startCoords.y - moveEvt.clientY
@@ -79,15 +86,11 @@
           };
           mainPin.style.top = (mainPin.offsetTop - shift.y) + 'px';
           mainPin.style.left = (mainPin.offsetLeft - shift.x) + 'px';
-          var locationMainPin = window.pin.getLocationMainPin(mainPin);
-          var pinX = locationMainPin.x;
-          var pinY = locationMainPin.y + window.data.dropPinBottom;
-          var isPinInMap = pinX > minX && pinX < maxX && pinY > minY && pinY < maxY;
-          if (!isPinInMap) {
+          if (!getPinInMapStatus(mainPin)) {
             mainPin.style.top = (mainPin.offsetTop + shift.y) + 'px';
             mainPin.style.left = (mainPin.offsetLeft + shift.x) + 'px';
           }
-          locationMainPin = window.pin.getLocationMainPin(mainPin);
+          var locationMainPin = window.pin.getLocationMainPin(mainPin);
           adFormAddressInput.value = locationMainPin.x + ', ' + (locationMainPin.y + window.data.dropPinBottom);
         };
 

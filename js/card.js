@@ -3,41 +3,40 @@
 (function () {
   var ENTER_KEYCODE = 13;
   var ESC_KEYCODE = 27;
+  var FEATURES_FLAG_CLASS_INDEX = 1;
 
   var map = document.querySelector('.map');
   var mapFiltersContainer = map.querySelector('.map__filters-container');
   var mapCardTemplate = document.querySelector('#card').content.querySelector('.map__card');
 
   var changeFeaturesList = function (featuresNode, noticeFeatures) {
-    var copyChild = featuresNode.firstElementChild;
-    copyChild.className = 'popup__feature';
-    while (featuresNode.querySelector('.popup__feature')) {
-      featuresNode.removeChild(featuresNode.querySelector('.popup__feature'));
+    var fragment = document.createDocumentFragment();
+    noticeFeatures.forEach(function (item) {
+      var copyChild = featuresNode.firstElementChild.cloneNode(true);
+      copyChild.classList.remove(copyChild.classList[FEATURES_FLAG_CLASS_INDEX]);
+      copyChild.classList.add('popup__feature--' + item);
+      fragment.appendChild(copyChild);
+    });
+    while (featuresNode.firstElementChild) {
+      featuresNode.removeChild(featuresNode.firstElementChild);
     }
-    for (var i = 0; i < noticeFeatures.length; i++) {
-      copyChild.classList.add('popup__feature--' + noticeFeatures[i]);
-      featuresNode.appendChild(copyChild.cloneNode(true));
-    }
-    return featuresNode;
+    return featuresNode.appendChild(fragment);
   };
 
   var addPhotosList = function (photosNode, noticePhotos) {
     var copyChild = photosNode.querySelector('.popup__photo');
     photosNode.removeChild(copyChild);
-    for (var i = 0; i < noticePhotos.length; i++) {
-      copyChild.src = noticePhotos[i];
+    noticePhotos.forEach(function (photoPath) {
+      copyChild.src = photoPath;
       photosNode.appendChild(copyChild.cloneNode(true));
-    }
+    });
     return photosNode;
   };
 
   var getNoticeByAlt = function (alt, notices) {
-    for (var i = 0; i < notices.length; i++) {
-      if (notices[i].offer.title === alt) {
-        return notices[i];
-      }
-    }
-    return notices[i];
+    return notices.find(function (notice) {
+      return notice.offer.title === alt;
+    });
   };
 
   var onPopupEscPress = function (evt) {
@@ -46,23 +45,27 @@
     }
   };
 
+  var getCardText = function (notice) {
+    var textCapacity = notice.offer.rooms + ' комнаты для ' + notice.offer.guests + ' гостей';
+    var textTime = 'Заезд после ' + notice.offer.checkin + ', выезд до ' + notice.offer.checkout;
+    return {
+      '.popup__title': notice.offer.title,
+      '.popup__text--address': notice.offer.address,
+      '.popup__text--price': notice.offer.price ? notice.offer.price + '₽/ночь' : null,
+      '.popup__type': notice.offer.type ? window.data.getOfferTypeValue(notice.offer.type) : null,
+      '.popup__text--capacity': notice.offer.rooms && notice.offer.guests ? textCapacity : null,
+      '.popup__text--time': notice.offer.checkin && notice.offer.checkout ? textTime : null,
+      '.popup__description': notice.offer.description
+    };
+  };
+
   window.card = {
     create: function (notice) {
       var cardElement = mapCardTemplate.cloneNode(true);
       if (!notice.offer) {
         return null;
       }
-      var textCapacity = notice.offer.rooms + ' комнаты для ' + notice.offer.guests + ' гостей';
-      var textTime = 'Заезд после ' + notice.offer.checkin + ', выезд до ' + notice.offer.checkout;
-      var cardText = {
-        '.popup__title': notice.offer.title,
-        '.popup__text--address': notice.offer.address,
-        '.popup__text--price': notice.offer.price ? notice.offer.price + '₽/ночь' : null,
-        '.popup__type': notice.offer.type ? window.data.getOfferTypeValue(notice.offer.type) : null,
-        '.popup__text--capacity': notice.offer.rooms && notice.offer.guests ? textCapacity : null,
-        '.popup__text--time': notice.offer.checkin && notice.offer.checkout ? textTime : null,
-        '.popup__description': notice.offer.description
-      };
+      var cardText = getCardText(notice);
       for (var key in cardText) {
         if (cardText.hasOwnProperty(key) && cardText[key]) {
           cardElement.querySelector(key).textContent = cardText[key];

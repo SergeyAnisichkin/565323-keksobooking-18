@@ -15,9 +15,9 @@
   var mainPinStartLeft = mapMainPin.style.left;
 
   var toggleDisabledStatus = function (elements) {
-    for (var i = 0; i < elements.length; ++i) {
-      elements[i].disabled = !elements[i].disabled;
-    }
+    elements.forEach(function (element) {
+      element.disabled = !element.disabled;
+    });
   };
 
   var onPinsLoad = function (noticesArray) {
@@ -31,6 +31,7 @@
     var mapPinElements = mapPins.querySelectorAll('.map__pin:not(.map__pin--main)');
     window.pin.addPinsEventListeners(mapPinElements, notices);
     toggleDisabledStatus(mapFilters);
+    toggleDisabledStatus(adFormFields);
   };
 
   window.map = {
@@ -58,7 +59,6 @@
     setActivePageStatus: function () {
       map.classList.remove('map--faded');
       window.backend.load(onPinsLoad, window.error.show);
-      toggleDisabledStatus(adFormFields);
       window.map.activePageStatus = true;
     }
   };

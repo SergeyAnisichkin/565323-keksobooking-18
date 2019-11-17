@@ -16,12 +16,9 @@
 
   window.data = {
     getOfferTypeValue: function (offerTypeKey) {
-      for (var i in OFFER_TYPES) {
-        if (OFFER_TYPES[i].key === offerTypeKey) {
-          return OFFER_TYPES[i].value;
-        }
-      }
-      return 'Без типа';
+      return OFFER_TYPES.find(function (offerType) {
+        return offerType.key === offerTypeKey;
+      }).value;
     },
     sizeMap: {
       minX: 0,
