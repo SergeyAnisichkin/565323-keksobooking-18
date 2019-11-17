@@ -71,9 +71,9 @@
   });
 
   var setTimeInOut = function (timeOptions, setValue) {
-    for (var i = 0; i < timeOptions.length; ++i) {
-      timeOptions[i].selected = (timeOptions[i].value === setValue) ? true : false;
-    }
+    Array.from(timeOptions).forEach(function (timeOption) {
+      timeOption.selected = (timeOption.value === setValue);
+    });
   };
 
   timeIn.addEventListener('change', function (evt) {

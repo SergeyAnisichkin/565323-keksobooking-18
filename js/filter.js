@@ -59,8 +59,8 @@
 
   window.filter = {
     addFilterNodesListeners: function (mapPins, mapFilters, notices) {
-      for (var i = 0; i < mapFilters.length; i++) {
-        mapFilters[i].addEventListener('change', function (evt) {
+      mapFilters.forEach(function (mapFilter) {
+        mapFilter.addEventListener('change', function (evt) {
           if (evt.target.tagName === 'SELECT') {
             window.map.filters[evt.target.id] = evt.target.value;
           } else if (evt.target.tagName === 'INPUT') {
@@ -69,7 +69,7 @@
           window.card.close();
           window.debounce.set(renderFilteredNotices, mapPins, notices);
         });
-      }
+      });
     },
 
     getFilteredNotices: function (notices) {
